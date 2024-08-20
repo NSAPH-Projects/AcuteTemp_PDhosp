@@ -104,7 +104,7 @@ county_sf %>%
       nrow = 2
     )
   )
-ggsave(paste0(dir_figs, "new_fig1.png"), width = 10, height = 5, dpi = 300)
+ggsave(paste0(dir_figs, "fig1a_koppen_map.png"), width = 10, height = 5, dpi = 300)
 
 
 ################### Figure 1b: density
@@ -118,6 +118,7 @@ ggsave(paste0(dir_figs, "new_fig1.png"), width = 10, height = 5, dpi = 300)
 # hi <- merge(hi, k_fips)
 
 # look at distribution across case/control days only
+pdf(paste0(dir_figs, "fig1b_koppen_density.pdf"), height = 5, width = 6)
 ggplot(data) +
   geom_density(aes(x = HI_lag_0, 
                    fill = factor(Koppen_s, 
@@ -136,14 +137,10 @@ ggplot(data) +
     "Tropical" = "skyblue"
   )) +
   labs(x = expression("Heat Index ("*degree*"C)"), y = "Density")
-
+dev.off()
 
 ################### Figure 1b: tables to go with density
 
 data[, .(#n = sum(case == 1),
          med = quantile(HI_lag_0, c(.5)),
          q99 = quantile(HI_lag_0, c(.99))), by = Koppen_s]
-
-
-
-

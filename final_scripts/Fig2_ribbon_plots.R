@@ -331,14 +331,11 @@ plot_list_cum[["nat"]] <- plot
 
 
 # arrange all the plots and save figs as PDF
-pdf(paste0(dir_figs, "revised_fig2_noncum.pdf"), height = 6, width = 9)
+pdf(paste0(dir_figs, "fig2_ribbons.pdf"), height = 6, width = 9)
 do.call(grid.arrange, c(plot_list, ncol = 3))
 dev.off()
 
-pdf(paste0(dir_figs, "revised_fig2_cum.pdf"), height = 6, width = 9)
+pdf(paste0(dir_figs, "fig2_ribbons_cumulative.pdf"), height = 6, width = 9)
 do.call(grid.arrange, c(plot_list_cum, ncol = 3))
 dev.off()
-
-
-
 
