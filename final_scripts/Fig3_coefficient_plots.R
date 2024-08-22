@@ -164,9 +164,9 @@ dat_fig3 |>
   geom_errorbar(linewidth = 0.7, width = 0) +
   geom_point(size = 2) +
   scale_fill_manual(values = c("Female" = "gold3",
-                               "Male" = "blue3")) +
+                               "Male" = "dodgerblue4")) +
   scale_color_manual(values = c("Female" = "gold3",
-                                "Male" = "blue3")) +
+                                "Male" = "dodgerblue4")) +
   #theme_minimal(base_size = 12) +
   theme_light(base_size = 10) +
   theme(
