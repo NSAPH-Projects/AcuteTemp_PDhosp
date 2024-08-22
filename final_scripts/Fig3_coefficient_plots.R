@@ -161,7 +161,7 @@ dat_fig3 |>
   #geom_hline(yintercept = combined_fit_OR, linetype = 3, size = 0.5) +
   #geom_hline(yintercept = 1, linetype = 1, linewidth = 0.5, color = "red") +
   geom_hline(yintercept = 1, linetype = 2, linewidth = 0.5, color = "gray50") +
-  geom_errorbar(size = 0.7, width = 0) +
+  geom_errorbar(linewidth = 0.7, width = 0) +
   geom_point(size = 2) +
   scale_fill_manual(values = c("Female" = "gold3",
                                "Male" = "blue3")) +
