@@ -19,7 +19,8 @@ data <- read_fst(paste0(dir_data, 'data_complete_climate.fst'), as.data.table = 
 county_sf <- read_sf(paste0(dir_data, "shapefiles/county/cb_2015_us_county_20m.shp")) %>%
   filter(!STATEFP %in% c("02","15", "66", "72", "60", "69", "78")) %>% 
   mutate(fips = as.numeric(GEOID))
-#Oglala Lakota County, SD. Shannon County, SD (FIPS code = 46113) was renamed Oglala Lakota County and assigned anew FIPS code (46102) effective in 2014
+# Shannon County, SD (FIPS code = 46113) was renamed Oglala Lakota County 
+# and assigned anew FIPS code (46102) effective in 2014
 county_sf$fips[county_sf$fips == 46102] <- 46113 
 
 state_sf <- read_sf(paste0(dir_data, "shapefiles/state/cb_2015_us_state_20m.shp")) %>%
@@ -131,10 +132,10 @@ ggplot(data) +
   theme_minimal(base_size = 16) +
   theme(legend.position = "none") +
   scale_fill_manual(values = c(
-    "Arid" = "plum2",
-    "Continental" = "darkorchid",
-    "Temperate" = "lightgreen",
-    "Tropical" = "skyblue"
+    "Arid" = "#db3d89",
+    "Continental" = "#7627bf",
+    "Temperate" = "#4f974f",
+    "Tropical" = "skyblue3"
   )) +
   labs(x = expression("Heat Index ("*degree*"C)"), y = "Density")
 dev.off()
