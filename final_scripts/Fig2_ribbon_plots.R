@@ -13,329 +13,250 @@ data <- read_fst(paste0(dir_data, 'data_complete_climate.fst'), as.data.table = 
 # path to new figures
 dir_figs <- "/n/dominici_nsaph_l3/Lab/projects/cdinehart_PDhosp_temperature/figures/"
 
-
-########################################################################
-########################### REVISED FIGURE 2 ########################### 
-########################################################################
-
-# based on old figure 1 (created in main_plots_NC_C.R)
-
 # load models from main analysis
 load(paste0(dir_data, 'aic_models_main.rda'))
 
-#select percentiles of interest, here we use the 75th, 90th, 95th, & 99th, but change them as needed
+# select percentile of interest
 pctile <- 990
 
-# empty lists to fill with plots
-plot_list <- list()
-plot_list_cum <- list()
+# plotting colors
+ctype_cols <- c("Nationwide" = "orangered", 
+                "Temperate" = "#4f974f",
+                "Continental" = "#7627bf",
+                "Arid" = "#db3d89",
+                "Tropical" = "skyblue3")
 
+# pdf dimensions
+pdf_height <- 2.5
+pdf_width <- 8
 
+#################################################################
+########################### FIGURE 2A ########################### 
+#################################################################
 
-# gg object to add to all plots (for formatting)
-gg_format <- list(
-  geom_hline(yintercept = 1, lty = 2, col = "gray60"),
-  scale_x_continuous(expand = c(0, 0)),
+### lag response plots
+# based on old figure 1 (created in main_plots_NC_C.R)
+
+# by climate type
+dat_2a_ctype <- #rbindlist(lapply(names(cp_F), function(s) {
+  rbindlist(lapply(names(cp), function(c) {
+    #rbindlist(lapply(perc, function(p) {
+      data.frame(#subgroup = s,
+        ctype = c,
+        #n = cp_F[[s]]$n,
+        #perc = perc[p],
+        #val = cp[[c]]$predvar[p],
+        lag = 0:14,
+        fit = cp[[c]]$matfit[pctile, ],
+        se = cp[[c]]$matse[pctile, ])
+    #}))
+  }))
+#}))
+
+# nationwide
+dat_2a_all <- #rbindlist(lapply(names(cp_F), function(s) {
+  #rbindlist(lapply(names(cp), function(c) {
+    #rbindlist(lapply(perc, function(p) {
+    data.frame(#subgroup = s,
+      ctype = "Nationwide",
+      #n = cp_F[[s]]$n,
+      #perc = perc[p],
+      #val = cp[[c]]$predvar[p],
+      lag = 0:14,
+      fit = cp_all$matfit[pctile, ],
+      se = cp_all$matse[pctile, ])
+    #}))
+  #}))
+#}))
+
+# bind rows
+dat_2a <- rbind(dat_2a_ctype, dat_2a_all)
+
+# new columns for OR and 95% CI
+dat_2a <- dat_2a %>%
+  mutate(or = exp(fit),
+         or_low = or - 1.96*se,
+         or_high = or + 1.96*se)
+
+# make climate type factor to set order
+dat_2a$ctype <- factor(dat_2a$ctype,
+                       levels = c("Nationwide", "Temperate", "Continental", "Arid", "Tropical"))
+
+# plot
+pdf(paste0(dir_figs, "fig2a_ribbons_lag-response.pdf"), height = pdf_height, width = pdf_width)
+dat_2a %>%
+  ggplot(aes(x = lag, y = or)) +
+  geom_hline(yintercept = 1, col = "gray50", lty = 2) +
+  geom_line(aes(col = ctype)) +
+  geom_ribbon(aes(ymin = or_low, ymax = or_high, fill = ctype), alpha = 0.3) +
+  labs(title = "Lag-response (2a)",
+       x = "Lag days (days after exposure)",
+       y = "Odds ratio") +
+  facet_grid(~ctype) +
+  scale_x_continuous(expand = c(0, 0)) +
   scale_y_continuous(expand = c(0, 0),
-                     lim = c(0.95, 1.07),
-                     breaks = scales::pretty_breaks()),
-  theme_light()
-)
-gg_format_cum <- list(
-  geom_hline(yintercept = 1, lty = 2, col = "gray60"),
-  scale_x_continuous(expand = c(0, 0)),
-  scale_y_continuous(expand = c(0, 0),
-                     lim = c(0.77, 1.23),
-                     breaks = scales::pretty_breaks()),
-  theme_light()
-)
-
-
-#TEMPERATE
-##Temperate non cumulative
-
-# Iterate over each value and create a ggplot
-main_line <- exp(cp$Temperate$matfit[pctile, ])
-confidence_interval <- 1.96 * cp$Temperate$matse[pctile, ]
-
-plot_data <- data.frame(
-  x = 1:length(main_line),
-  y = main_line,
-  lower = exp(cp$Temperate$matfit[pctile, ] - confidence_interval),
-  upper = exp(cp$Temperate$matfit[pctile, ] + confidence_interval),
-  value = as.character(pctile)
-)
-
-plot <- ggplot(plot_data, aes(x = x, y = y)) +
-  geom_line() +
-  geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.3, fill = "lightgreen") +
-  labs(title = paste("Temperate"),
-       x = "Lag Days",
-       y = "OR") +
-  gg_format
-
-
-# Store the ggplot object in the list
-plot_list[["temp"]] <- plot
-
-
-
-##Temperate Cumulative
-
-# Iterate over each value and create a ggplot
-main_line <- exp(cp$Temperate$cumfit[pctile, ])
-confidence_interval <- 1.96 * cp$Temperate$cumse[pctile, ]
-
-plot_data <- data.frame(
-  x = 1:length(main_line),
-  y = main_line,
-  lower = exp(cp$Temperate$cumfit[pctile, ] - confidence_interval),
-  upper = exp(cp$Temperate$cumfit[pctile, ] + confidence_interval),
-  value = as.character(pctile)
-)
-
-plot <- ggplot(plot_data, aes(x = x, y = y)) +
-  geom_line() +
-  geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.3, fill = "lightgreen") +
-  labs(title = paste("Temperate (cumulative)"),
-       x = "Lag Days",
-       y = "OR") +
-  gg_format_cum
-
-# Store the ggplot object in the list
-plot_list_cum[["temp"]] <- plot
-
-
-
-
-#TROPICAL
-
-# Iterate over each value and create a ggplot
-main_line <- exp(cp$Tropical$matfit[pctile, ])
-confidence_interval <- 1.96 * cp$Tropical$matse[pctile, ]
-
-plot_data <- data.frame(
-  x = 1:length(main_line),
-  y = main_line,
-  lower = exp(cp$Tropical$matfit[pctile, ] - confidence_interval),
-  upper = exp(cp$Tropical$matfit[pctile, ] + confidence_interval),
-  value = as.character(pctile)
-)
-
-plot <- ggplot(plot_data, aes(x = x, y = y)) +
-  geom_line() +
-  geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.3, fill = "skyblue") +
-  labs(title = paste("Tropical"),
-       x = "Lag Days",
-       y = "OR") +
-  gg_format
-
-# Store the ggplot object in the list
-plot_list[["trop"]] <- plot
-
-
-
-##Tropical Cumulative plots
-
-
-# Iterate over each value and create a ggplot
-main_line <- exp(cp$Tropical$cumfit[pctile, ])
-confidence_interval <- 1.96 * cp$Tropical$cumse[pctile, ]
-
-plot_data <- data.frame(
-  x = 1:length(main_line),
-  y = main_line,
-  lower = exp(cp$Tropical$cumfit[pctile, ] - confidence_interval),
-  upper = exp(cp$Tropical$cumfit[pctile, ] + confidence_interval),
-  value = as.character(pctile)
-)
-
-plot <- ggplot(plot_data, aes(x = x, y = y)) +
-  geom_line() +
-  geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.3, fill = "skyblue") +
-  labs(title = paste("Tropical (cumulative)"),
-       x = "Lag Days",
-       y = "OR") +
-  gg_format_cum
-
-# Store the ggplot object in the list
-plot_list_cum[["trop"]] <- plot
-
-
-
-#ARID
-
-##Arid plots non_cumulative
-
-
-# Iterate over each value and create a ggplot
-main_line <- exp(cp$Arid$matfit[pctile, ])
-confidence_interval <- 1.96 * cp$Arid$matse[pctile, ]
-
-plot_data <- data.frame(
-  x = 1:length(main_line),
-  y = main_line,
-  lower = exp(cp$Arid$matfit[pctile, ] - confidence_interval),
-  upper = exp(cp$Arid$matfit[pctile, ] + confidence_interval),
-  value = as.character(pctile)
-)
-
-plot <- ggplot(plot_data, aes(x = x, y = y)) +
-  geom_line() +
-  geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.3, fill = "plum2") +
-  labs(title = paste("Arid"),
-       x = "Lag Days",
-       y = "OR") +
-  gg_format
-
-# Store the ggplot object in the list
-plot_list[["arid"]] <- plot
-
-
-##arid cumulative
-
-# Iterate over each value and create a ggplot
-main_line <- exp(cp$Arid$cumfit[pctile, ])
-confidence_interval <- 1.96 * cp$Arid$cumse[pctile, ]
-
-plot_data <- data.frame(
-  x = 1:length(main_line),
-  y = main_line,
-  lower = exp(cp$Arid$cumfit[pctile, ] - confidence_interval),
-  upper = exp(cp$Arid$cumfit[pctile, ] + confidence_interval),
-  value = as.character(pctile)
-)
-
-plot <- ggplot(plot_data, aes(x = x, y = y)) +
-  geom_line() +
-  geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.3, fill = "plum2") +
-  labs(title = paste("Arid (cumulative)"),
-       x = "Lag Days",
-       y = "OR") +
-  gg_format_cum
-
-# Store the ggplot object in the list
-plot_list_cum[["arid"]] <- plot
-
-
-
-#CONTINENTAL
-##continental non-cumulative
-
-# Iterate over each value and create a ggplot
-main_line <- exp(cp$Continental$matfit[pctile, ])
-confidence_interval <- 1.96 * cp$Continental$matse[pctile, ]
-
-plot_data <- data.frame(
-  x = 1:length(main_line),
-  y = main_line,
-  lower = exp(cp$Continental$matfit[pctile, ] - confidence_interval),
-  upper = exp(cp$Continental$matfit[pctile, ] + confidence_interval),
-  value = as.character(pctile)
-)
-
-plot <- ggplot(plot_data, aes(x = x, y = y)) +
-  geom_line() +
-  geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.3, fill = "darkorchid") +
-  labs(title = paste("Continental"),
-       x = "Lag Days",
-       y = "OR") +
-  gg_format
-
-# Store the ggplot object in the list
-plot_list[["cont"]] <- plot
-
-
-
-
-##Continental cumulative
-
-# Iterate over each value and create a ggplot
-main_line <- exp(cp$Continental$cumfit[pctile, ])
-confidence_interval <- 1.96 * cp$Continental$cumse[pctile, ]
-
-plot_data <- data.frame(
-  x = 1:length(main_line),
-  y = main_line,
-  lower = exp(cp$Continental$cumfit[pctile, ] - confidence_interval),
-  upper = exp(cp$Continental$cumfit[pctile, ] + confidence_interval),
-  value = as.character(pctile)
-)
-
-plot <- ggplot(plot_data, aes(x = x, y = y)) +
-  geom_line() +
-  geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.3, fill = "darkorchid") +
-  labs(title = paste("Continental (cumulative)"),
-       x = "Lag Days",
-       y = "OR") +
-  gg_format_cum
-
-# Store the ggplot object in the list
-plot_list_cum[["cont"]] <- plot
-
-
-
-#NATIONAL
-
-##national plot non-cumulative
-
-# Iterate over each value and create a ggplot
-main_line <- exp(cp_all$matfit[pctile, ])
-confidence_interval <- 1.96 * cp_all$matse[pctile, ]
-
-plot_data <- data.frame(
-  x = 1:length(main_line),
-  y = main_line,
-  lower = exp(cp_all$matfit[pctile, ] - confidence_interval),
-  upper = exp(cp_all$matfit[pctile, ] + confidence_interval),
-  value = as.character(pctile)
-)
-
-plot <- ggplot(plot_data, aes(x = x, y = y)) +
-  geom_line() +
-  geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.3, fill = "orangered") +
-  labs(title = paste("National"),
-       x = "Lag Days",
-       y = "OR") +
-  gg_format
-
-# Store the ggplot object in the list
-plot_list[["nat"]] <- plot
-
-
-##National cumulative
-
-# Iterate over each value and create a ggplot
-main_line <- exp(cp_all$cumfit[pctile, ])
-confidence_interval <- 1.96 * cp_all$cumse[pctile, ]
-
-plot_data <- data.frame(
-  x = 1:length(main_line),
-  y = main_line,
-  lower = exp(cp_all$cumfit[pctile, ] - confidence_interval),
-  upper = exp(cp_all$cumfit[pctile, ] + confidence_interval),
-  value = as.character(pctile)
-)
-
-plot <- ggplot(plot_data, aes(x = x, y = y)) +
-  geom_line() +
-  geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.3, fill = "orangered") +
-  labs(title = paste("National (cumulative)"),
-       x = "Lag Days",
-       y = "OR") +
-  gg_format_cum
-
-# Store the ggplot object in the list
-plot_list_cum[["nat"]] <- plot
-
-
-
-# arrange all the plots and save figs as PDF
-pdf(paste0(dir_figs, "fig2_ribbons.pdf"), height = 6, width = 9)
-do.call(grid.arrange, c(plot_list, ncol = 3))
+                   breaks = scales::pretty_breaks()) +
+  scale_fill_manual(values = ctype_cols) +
+  scale_color_manual(values = ctype_cols) +
+  coord_cartesian(ylim = c(0.95, 1.04)) +
+  theme_light() +
+  theme(legend.position = "none",
+        strip.background = element_blank(),
+        strip.text = element_text(color = "black"))
 dev.off()
 
-pdf(paste0(dir_figs, "fig2_ribbons_cumulative.pdf"), height = 6, width = 9)
-do.call(grid.arrange, c(plot_list_cum, ncol = 3))
+
+#################################################################
+########################### FIGURE 2B ########################### 
+#################################################################
+
+### cumulative effect plots
+# based on old figure 1 (created in main_plots_NC_C.R)
+
+# by climate type
+dat_2b_ctype <- #rbindlist(lapply(names(cp_F), function(s) {
+  rbindlist(lapply(names(cp), function(c) {
+    #rbindlist(lapply(perc, function(p) {
+    data.frame(#subgroup = s,
+      ctype = c,
+      #n = cp_F[[s]]$n,
+      #perc = perc[p],
+      #val = cp[[c]]$predvar[p],
+      lag = 0:14,
+      fit = cp[[c]]$cumfit[pctile, ],
+      se = cp[[c]]$cumse[pctile, ])
+    #}))
+  }))
+#}))
+
+# nationwide
+dat_2b_all <- #rbindlist(lapply(names(cp_F), function(s) {
+  #rbindlist(lapply(names(cp), function(c) {
+  #rbindlist(lapply(perc, function(p) {
+  data.frame(#subgroup = s,
+    ctype = "Nationwide",
+    #n = cp_F[[s]]$n,
+    #perc = perc[p],
+    #val = cp[[c]]$predvar[p],
+    lag = 0:14,
+    fit = cp_all$cumfit[pctile, ],
+    se = cp_all$cumse[pctile, ])
+#}))
+#}))
+#}))
+
+# bind rows
+dat_2b <- rbind(dat_2b_ctype, dat_2b_all)
+
+# new columns for OR and 95% CI
+dat_2b <- dat_2b %>%
+  mutate(or = exp(fit),
+         or_low = or - 1.96*se,
+         or_high = or + 1.96*se)
+
+# make climate type factor to set order
+dat_2b$ctype <- factor(dat_2b$ctype,
+                       levels = c("Nationwide", "Temperate", "Continental", "Arid", "Tropical"))
+
+# plot
+pdf(paste0(dir_figs, "fig2b_ribbons_cumulative.pdf"), height = pdf_height, width = pdf_width)
+dat_2b %>%
+  ggplot(aes(x = lag, y = or)) +
+  geom_hline(yintercept = 1, col = "gray50", lty = 2) +
+  geom_line(aes(col = ctype)) +
+  geom_ribbon(aes(ymin = or_low, ymax = or_high, fill = ctype), alpha = 0.3) +
+  labs(title = "Cumulative effects (2b)",
+       x = "Cumulative days of sustained exposure",
+       y = "Odds ratio") +
+  facet_grid(~ctype) +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0),
+                     breaks = c(0.9, 1, 1.1)) +
+  scale_fill_manual(values = ctype_cols) +
+  scale_color_manual(values = ctype_cols) +
+  coord_cartesian(ylim = c(0.85, 1.12)) +
+  theme_light() +
+  theme(legend.position = "none",
+        strip.background = element_blank(),
+        strip.text = element_text(color = "black"))
+dev.off()
+
+
+#################################################################
+########################### FIGURE 2C ########################### 
+#################################################################
+
+# percentiles for comparison to 500
+perc <- 500:999
+
+# data by climate type
+dat_2c_ctype <- #rbindlist(lapply(names(cp_F), function(s) {
+  rbindlist(lapply(names(cp), function(c) {
+    rbindlist(lapply(perc, function(p) {
+      data.frame(#subgroup = s,
+        ctype = c,
+        #n = cp_F[[s]]$n,
+        #perc = perc[p],
+        val = cp[[c]]$predvar[p],
+        lag = 0:14,
+        fit = cp[[c]]$cumfit[p,],
+        se = cp[[c]]$cumse[p,])
+    }))
+  }))
+#}))
+
+# nationwide
+dat_2c_all <- #rbindlist(lapply(names(cp_F), function(s) {
+  #rbindlist(lapply(names(cp), function(c) {
+    rbindlist(lapply(perc, function(p) {
+      data.frame(#subgroup = s,
+        ctype = "Nationwide",
+        #n = cp_F[[s]]$n,
+        #perc = perc[p],
+        val = cp_all$predvar[p],
+        lag = 0:14,
+        fit = cp_all$cumfit[p,],
+        se = cp_all$cumse[p,])
+    }))
+  #}))
+#}))
+
+dat_2c <- rbind(dat_2c_ctype, dat_2c_all)
+
+# filter to lag = 2
+dat_2c <- dat_2c[lag == 2]
+
+# new columns for OR and 95% CI
+dat_2c <- dat_2c %>%
+  mutate(or = exp(fit),
+         or_low = or - 1.96*se,
+         or_high = or + 1.96*se)
+
+# make climate type factor to set order
+dat_2c$ctype <- factor(dat_2c$ctype,
+                       levels = c("Nationwide", "Temperate", "Continental", "Arid", "Tropical"))
+
+# plot
+pdf(paste0(dir_figs, "fig2c_ribbons_erc.pdf"), height = pdf_height, width = pdf_width)
+dat_2c %>%
+  ggplot(aes(x = val, y = or)) +
+  geom_hline(yintercept = 1, col = "gray50", lty = 2) +
+  geom_line(aes(col = ctype)) +
+  geom_ribbon(aes(ymin = or_low, ymax = or_high, fill = ctype), alpha = 0.3) +
+  labs(title = "Exposure-response curves (2c)",
+       x = "Heat index percentiles",
+       y = "Odds ratio") +
+  facet_grid(~ctype) +
+  scale_x_continuous(expand = c(0, 0),
+                     breaks = seq(0.5, 1, by = 0.1)) +
+  scale_y_continuous(expand = c(0, 0),
+                     breaks = scales::pretty_breaks()) +
+  scale_fill_manual(values = ctype_cols) +
+  scale_color_manual(values = ctype_cols) +
+  coord_cartesian(ylim = c(0.93, 1.12)) +
+  theme_light() +
+  theme(legend.position = "none",
+        strip.background = element_blank(),
+        strip.text = element_text(color = "black"))
 dev.off()
 
