@@ -38,36 +38,19 @@ pdf_width <- 8
 # based on old figure 1 (created in main_plots_NC_C.R)
 
 # by climate type
-dat_2a_ctype <- #rbindlist(lapply(names(cp_F), function(s) {
-  rbindlist(lapply(names(cp), function(c) {
-    #rbindlist(lapply(perc, function(p) {
-      data.frame(#subgroup = s,
-        ctype = c,
-        #n = cp_F[[s]]$n,
-        #perc = perc[p],
-        #val = cp[[c]]$predvar[p],
-        lag = 0:14,
-        fit = cp[[c]]$matfit[pctile, ],
-        se = cp[[c]]$matse[pctile, ])
-    #}))
-  }))
-#}))
+dat_2a_ctype <- rbindlist(lapply(names(cp), function(c) {
+  data.frame(ctype = c,
+             lag = 0:14,
+             fit = cp[[c]]$matfit[pctile, ],
+             se = cp[[c]]$matse[pctile, ])
+}))
 
 # nationwide
-dat_2a_all <- #rbindlist(lapply(names(cp_F), function(s) {
-  #rbindlist(lapply(names(cp), function(c) {
-    #rbindlist(lapply(perc, function(p) {
-    data.frame(#subgroup = s,
-      ctype = "Nationwide",
-      #n = cp_F[[s]]$n,
-      #perc = perc[p],
-      #val = cp[[c]]$predvar[p],
-      lag = 0:14,
-      fit = cp_all$matfit[pctile, ],
-      se = cp_all$matse[pctile, ])
-    #}))
-  #}))
-#}))
+dat_2a_all <- data.frame(ctype = "Nationwide",
+                         lag = 0:14,
+                         fit = cp_all$matfit[pctile, ],
+                         se = cp_all$matse[pctile, ])
+
 
 # bind rows
 dat_2a <- rbind(dat_2a_ctype, dat_2a_all)
@@ -114,36 +97,18 @@ dev.off()
 # based on old figure 1 (created in main_plots_NC_C.R)
 
 # by climate type
-dat_2b_ctype <- #rbindlist(lapply(names(cp_F), function(s) {
-  rbindlist(lapply(names(cp), function(c) {
-    #rbindlist(lapply(perc, function(p) {
-    data.frame(#subgroup = s,
-      ctype = c,
-      #n = cp_F[[s]]$n,
-      #perc = perc[p],
-      #val = cp[[c]]$predvar[p],
-      lag = 0:14,
-      fit = cp[[c]]$cumfit[pctile, ],
-      se = cp[[c]]$cumse[pctile, ])
-    #}))
-  }))
-#}))
+dat_2b_ctype <- rbindlist(lapply(names(cp), function(c) {
+  data.frame(ctype = c,
+             lag = 0:14,
+             fit = cp[[c]]$cumfit[pctile, ],
+             se = cp[[c]]$cumse[pctile, ])
+}))
 
 # nationwide
-dat_2b_all <- #rbindlist(lapply(names(cp_F), function(s) {
-  #rbindlist(lapply(names(cp), function(c) {
-  #rbindlist(lapply(perc, function(p) {
-  data.frame(#subgroup = s,
-    ctype = "Nationwide",
-    #n = cp_F[[s]]$n,
-    #perc = perc[p],
-    #val = cp[[c]]$predvar[p],
-    lag = 0:14,
-    fit = cp_all$cumfit[pctile, ],
-    se = cp_all$cumse[pctile, ])
-#}))
-#}))
-#}))
+dat_2b_all <- data.frame(ctype = "Nationwide",
+                         lag = 0:14,
+                         fit = cp_all$cumfit[pctile, ],
+                         se = cp_all$cumse[pctile, ])
 
 # bind rows
 dat_2b <- rbind(dat_2b_ctype, dat_2b_all)
@@ -190,37 +155,26 @@ dev.off()
 perc <- 500:999
 
 # data by climate type
-dat_2c_ctype <- #rbindlist(lapply(names(cp_F), function(s) {
-  rbindlist(lapply(names(cp), function(c) {
+dat_2c_ctype <- rbindlist(lapply(names(cp), function(c) {
     rbindlist(lapply(perc, function(p) {
-      data.frame(#subgroup = s,
-        ctype = c,
-        #n = cp_F[[s]]$n,
-        #perc = perc[p],
-        val = cp[[c]]$predvar[p],
-        lag = 0:14,
-        fit = cp[[c]]$cumfit[p,],
-        se = cp[[c]]$cumse[p,])
+      data.frame(ctype = c,
+                 val = cp[[c]]$predvar[p],
+                 lag = 0:14,
+                 fit = cp[[c]]$cumfit[p,],
+                 se = cp[[c]]$cumse[p,])
     }))
-  }))
-#}))
+}))
 
 # nationwide
-dat_2c_all <- #rbindlist(lapply(names(cp_F), function(s) {
-  #rbindlist(lapply(names(cp), function(c) {
-    rbindlist(lapply(perc, function(p) {
-      data.frame(#subgroup = s,
-        ctype = "Nationwide",
-        #n = cp_F[[s]]$n,
-        #perc = perc[p],
-        val = cp_all$predvar[p],
-        lag = 0:14,
-        fit = cp_all$cumfit[p,],
-        se = cp_all$cumse[p,])
-    }))
-  #}))
-#}))
+dat_2c_all <- rbindlist(lapply(perc, function(p) {
+      data.frame(ctype = "Nationwide",
+                 val = cp_all$predvar[p],
+                 lag = 0:14,
+                 fit = cp_all$cumfit[p,],
+                 se = cp_all$cumse[p,])
+}))
 
+# bind rows
 dat_2c <- rbind(dat_2c_ctype, dat_2c_all)
 
 # filter to lag = 2
