@@ -93,7 +93,7 @@ county_sf %>%
     "Tropical rainforest" = "#bfdff2",
     "Tropical monsoon" = "#6ab4e1",
     "Tropical savanna dry winter" = "#2685bf")) +
-  theme_void(base_family = "Arial") +
+  theme_void() +
   theme(legend.position = "bottom",
         plot.background = element_rect(fill = "white", color = NA)) +
   guides(
@@ -105,7 +105,8 @@ county_sf %>%
       nrow = 2
     )
   )
-ggsave(paste0(dir_figs, "fig1a_koppen_map.png"), width = 10, height = 5, dpi = 300)
+#ggsave(paste0(dir_figs, "fig1a_koppen_map.png"), width = 10, height = 5, dpi = 300)
+ggsave(paste0(dir_figs, "fig1a_koppen_map.pdf"), width = 10, height = 5)
 
 
 ################### Figure 1b: density
