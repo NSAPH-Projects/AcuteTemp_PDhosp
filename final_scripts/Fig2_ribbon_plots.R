@@ -5,6 +5,7 @@ library(fst)
 library(ggplot2)
 library(tidyverse)
 library(gridExtra)
+library(cowplot)
 
 # load data
 dir_data <- "/n/dominici_nsaph_l3/Lab/projects/cdinehart_PDhosp_temperature/data/"
@@ -26,9 +27,9 @@ ctype_cols <- c("Nationwide" = "orangered",
                 "Arid" = "#db3d89",
                 "Tropical" = "skyblue3")
 
-# pdf dimensions
-pdf_height <- 2.5
-pdf_width <- 8
+# # pdf dimensions
+# pdf_height <- 2.5
+# pdf_width <- 8
 
 #################################################################
 ########################### FIGURE 2A ########################### 
@@ -66,13 +67,13 @@ dat_2a$ctype <- factor(dat_2a$ctype,
                        levels = c("Nationwide", "Temperate", "Continental", "Arid", "Tropical"))
 
 # plot
-pdf(paste0(dir_figs, "fig2a_ribbons_lag-response.pdf"), height = pdf_height, width = pdf_width)
-dat_2a %>%
+#pdf(paste0(dir_figs, "fig2a_ribbons_lag-response.pdf"), height = pdf_height, width = pdf_width)
+plot_2a <- dat_2a %>%
   ggplot(aes(x = lag, y = or)) +
   geom_hline(yintercept = 1, col = "gray50", lty = 2) +
   geom_line(aes(col = ctype)) +
   geom_ribbon(aes(ymin = or_low, ymax = or_high, fill = ctype), alpha = 0.3) +
-  labs(title = "Lag-response (2a)",
+  labs(title = "Figure 2(a). Lag-response relationship for one day of exposure to the 99th versus the 50th percentile of heat index \ndistributions.",
        x = "Lag days (days after exposure)",
        y = "Odds ratio") +
   facet_grid(~ctype) +
@@ -85,8 +86,10 @@ dat_2a %>%
   theme_light() +
   theme(legend.position = "none",
         strip.background = element_blank(),
-        strip.text = element_text(color = "black"))
-dev.off()
+        strip.text = element_text(color = "black"),
+        plot.title = element_text(size = 10),
+        plot.margin = margin(10, 10, 25, 10)) # extra space below
+#dev.off()
 
 
 #################################################################
@@ -124,13 +127,13 @@ dat_2b$ctype <- factor(dat_2b$ctype,
                        levels = c("Nationwide", "Temperate", "Continental", "Arid", "Tropical"))
 
 # plot
-pdf(paste0(dir_figs, "fig2b_ribbons_cumulative.pdf"), height = pdf_height, width = pdf_width)
-dat_2b %>%
+#pdf(paste0(dir_figs, "fig2b_ribbons_cumulative.pdf"), height = pdf_height, width = pdf_width)
+plot_2b <- dat_2b %>%
   ggplot(aes(x = lag, y = or)) +
   geom_hline(yintercept = 1, col = "gray50", lty = 2) +
   geom_line(aes(col = ctype)) +
   geom_ribbon(aes(ymin = or_low, ymax = or_high, fill = ctype), alpha = 0.3) +
-  labs(title = "Cumulative effects (2b)",
+  labs(title = "Figure 2(b). Cumulative effects of multiple days of sustained exposure to the 99th versus 50th percentile of heat \nindex distributions.",
        x = "Cumulative days of sustained exposure",
        y = "Odds ratio") +
   facet_grid(~ctype) +
@@ -143,8 +146,10 @@ dat_2b %>%
   theme_light() +
   theme(legend.position = "none",
         strip.background = element_blank(),
-        strip.text = element_text(color = "black"))
-dev.off()
+        strip.text = element_text(color = "black"),
+        plot.title = element_text(size = 10),
+        plot.margin = margin(10, 10, 25, 10)) # extra space below
+#dev.off()
 
 
 #################################################################
@@ -191,13 +196,13 @@ dat_2c$ctype <- factor(dat_2c$ctype,
                        levels = c("Nationwide", "Temperate", "Continental", "Arid", "Tropical"))
 
 # plot
-pdf(paste0(dir_figs, "fig2c_ribbons_erc.pdf"), height = pdf_height, width = pdf_width)
-dat_2c %>%
+#pdf(paste0(dir_figs, "fig2c_ribbons_erc.pdf"), height = pdf_height, width = pdf_width)
+plot_2c <- dat_2c %>%
   ggplot(aes(x = val, y = or)) +
   geom_hline(yintercept = 1, col = "gray50", lty = 2) +
   geom_line(aes(col = ctype)) +
   geom_ribbon(aes(ymin = or_low, ymax = or_high, fill = ctype), alpha = 0.3) +
-  labs(title = "Exposure-response curves (2c)",
+  labs(title = "Figure 2(c). Exposure-response relationship after three days of sustained exposure to elevated heat index \npercentiles versus the 50th percentile of heat index distributions.",
        x = "Heat index percentiles",
        y = "Odds ratio") +
   facet_grid(~ctype) +
@@ -211,6 +216,20 @@ dat_2c %>%
   theme_light() +
   theme(legend.position = "none",
         strip.background = element_blank(),
-        strip.text = element_text(color = "black"))
+        strip.text = element_text(color = "black"),
+        plot.title = element_text(size = 10))
+#dev.off()
+
+
+#################################################################
+########################### ALL PANELS ########################## 
+#################################################################
+
+pdf(paste0(dir_figs, "fig2_ribbons.pdf"), height = 9, width = 8)
+
+# align plots (so the plotting space is the same)
+fig2 <- cowplot::align_plots(plot_2a, plot_2b, plot_2c, align = "hv")
+plot_grid(fig2[[1]], fig2[[2]], fig2[[3]], ncol = 1)
+
 dev.off()
 
