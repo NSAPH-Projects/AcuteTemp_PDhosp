@@ -95,16 +95,9 @@ county_sf %>%
     "Tropical savanna dry winter" = "#2685bf")) +
   theme_void() +
   theme(legend.position = "bottom",
-        plot.background = element_rect(fill = "white", color = NA)) +
-  guides(
-    color = guide_legend(
-      override.aes = list(
-        shape = c(16, 16, 16, 16, NA, NA), # Controls the items per row
-        size = c(3, 3, 3, 3, NA, NA)
-      ),
-      nrow = 2
-    )
-  )
+        plot.background = element_rect(fill = "white", color = NA),
+        plot.margin = margin(10, 10, 15, 10))
+  
 #ggsave(paste0(dir_figs, "fig1a_koppen_map.png"), width = 10, height = 5, dpi = 300)
 ggsave(paste0(dir_figs, "fig1a_koppen_map.pdf"), width = 10, height = 5)
 
