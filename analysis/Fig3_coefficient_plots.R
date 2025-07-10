@@ -85,8 +85,20 @@ dat_fig3 <- rbind(dat_F, dat_M, dat_all_F, dat_all_M)
 # new columns for OR and 95% CI
 dat_fig3 <- dat_fig3 %>%
   mutate(or = exp(fit),
-         or_low = or - 1.96*se,
-         or_high = or + 1.96*se)
+         or_low = exp(fit - 1.96 * se),
+         or_high = exp(fit + 1.96 * se))
+
+
+# get Supplement Table 4
+
+dat_fig3 |>
+  filter(perc == 0.99 &
+           lag %in% c(0:2)) |>
+  mutate(or = paste0(round(or, 3), " (", round(or_low, 3), ", ", round(or_high, 3), ")")) |>
+  select(ctype, sex, lag, or)
+
+
+
 
 # restrict to rows of interest
 dat_fig3 <- dat_fig3[lag == 2 & val == 0.990]
@@ -134,8 +146,6 @@ dat_fig3 |>
   geom_hline(yintercept = 1, linetype = 2, linewidth = 0.5, color = "gray50") +
   geom_errorbar(linewidth = 0.7, width = 0) +
   geom_point(size = 2) +
-  scale_fill_manual(values = c("Female" = "gold3",
-                               "Male" = "dodgerblue4")) +
   scale_color_manual(values = c("Female" = "gold3",
                                 "Male" = "dodgerblue4")) +
   theme_light(base_size = 10) +

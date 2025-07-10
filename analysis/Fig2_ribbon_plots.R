@@ -59,15 +59,14 @@ dat_2a <- rbind(dat_2a_ctype, dat_2a_all)
 # new columns for OR and 95% CI
 dat_2a <- dat_2a %>%
   mutate(or = exp(fit),
-         or_low = or - 1.96*se,
-         or_high = or + 1.96*se)
+         or_low = exp(fit - 1.96 * se),
+         or_high = exp(fit + 1.96 * se))
 
 # make climate type factor to set order
 dat_2a$ctype <- factor(dat_2a$ctype,
                        levels = c("Nationwide", "Temperate", "Continental", "Arid", "Tropical"))
 
 # plot
-#pdf(paste0(dir_figs, "fig2a_ribbons_lag-response.pdf"), height = pdf_height, width = pdf_width)
 plot_2a <- dat_2a %>%
   ggplot(aes(x = lag, y = or)) +
   geom_hline(yintercept = 1, col = "gray50", lty = 2) +
@@ -89,7 +88,14 @@ plot_2a <- dat_2a %>%
         strip.text = element_text(color = "black"),
         plot.title = element_text(size = 10),
         plot.margin = margin(10, 10, 25, 10)) # extra space below
-#dev.off()
+
+# get these results in a table for Supplement Table 2
+# table has results for 95th percentile and 99th percentile (change percentile at the top)
+dat_2a |>
+  filter(lag %in% 0:2) |>
+  mutate(or = paste0(round(or, 3), " (", round(or_low, 3), ", ", round(or_high, 3), ")")) |>
+  select(ctype, lag, or)
+
 
 
 #################################################################
@@ -119,15 +125,14 @@ dat_2b <- rbind(dat_2b_ctype, dat_2b_all)
 # new columns for OR and 95% CI
 dat_2b <- dat_2b %>%
   mutate(or = exp(fit),
-         or_low = or - 1.96*se,
-         or_high = or + 1.96*se)
+         or_low = exp(fit - 1.96 * se),
+         or_high = exp(fit + 1.96 * se))
 
 # make climate type factor to set order
 dat_2b$ctype <- factor(dat_2b$ctype,
                        levels = c("Nationwide", "Temperate", "Continental", "Arid", "Tropical"))
 
 # plot
-#pdf(paste0(dir_figs, "fig2b_ribbons_cumulative.pdf"), height = pdf_height, width = pdf_width)
 plot_2b <- dat_2b %>%
   ggplot(aes(x = lag, y = or)) +
   geom_hline(yintercept = 1, col = "gray50", lty = 2) +
@@ -149,7 +154,13 @@ plot_2b <- dat_2b %>%
         strip.text = element_text(color = "black"),
         plot.title = element_text(size = 10),
         plot.margin = margin(10, 10, 25, 10)) # extra space below
-#dev.off()
+
+# get these results in a table for Supplement Table 2
+# table has results for 95th percentile and 99th percentile (change percentile at the top)
+dat_2b |>
+  filter(lag %in% 0:2) |>
+  mutate(or = paste0(round(or, 3), " (", round(or_low, 3), ", ", round(or_high, 3), ")")) |>
+  select(ctype, lag, or)
 
 
 #################################################################
@@ -188,15 +199,14 @@ dat_2c <- dat_2c[lag == 2]
 # new columns for OR and 95% CI
 dat_2c <- dat_2c %>%
   mutate(or = exp(fit),
-         or_low = or - 1.96*se,
-         or_high = or + 1.96*se)
+         or_low = exp(fit - 1.96 * se),
+         or_high = exp(fit + 1.96 * se))
 
 # make climate type factor to set order
 dat_2c$ctype <- factor(dat_2c$ctype,
                        levels = c("Nationwide", "Temperate", "Continental", "Arid", "Tropical"))
 
 # plot
-#pdf(paste0(dir_figs, "fig2c_ribbons_erc.pdf"), height = pdf_height, width = pdf_width)
 plot_2c <- dat_2c %>%
   ggplot(aes(x = val, y = or)) +
   geom_hline(yintercept = 1, col = "gray50", lty = 2) +
@@ -218,18 +228,21 @@ plot_2c <- dat_2c %>%
         strip.background = element_blank(),
         strip.text = element_text(color = "black"),
         plot.title = element_text(size = 10))
-#dev.off()
 
 
 #################################################################
 ########################### ALL PANELS ########################## 
 #################################################################
 
-pdf(paste0(dir_figs, "fig2_ribbons.pdf"), height = 9, width = 8)
-
-# align plots (so the plotting space is the same)
-fig2 <- cowplot::align_plots(plot_2a, plot_2b, plot_2c, align = "hv")
-plot_grid(fig2[[1]], fig2[[2]], fig2[[3]], ncol = 1)
-
-dev.off()
+# save figure with all panels (only for 99th percentile)
+if(pctile == 0.990){
+  pdf(paste0(dir_figs, "fig2_ribbons.pdf"), height = 9, width = 8)
+  
+  # align plots (so the plotting space is the same)
+  fig2 <- cowplot::align_plots(plot_2a, plot_2b, plot_2c, align = "hv")
+  plot_grid(fig2[[1]], fig2[[2]], fig2[[3]], ncol = 1)
+  
+  dev.off()
+  
+}
 
