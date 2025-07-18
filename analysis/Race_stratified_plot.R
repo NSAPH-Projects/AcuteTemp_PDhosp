@@ -55,7 +55,7 @@ dat <- rbindlist(lapply(names(cp_list), function(r) {
 
 
 # restrict to rows of interest
-dat_cum <- dat[lag == 2 & val == 0.990]
+dat_cum <- dat[lag == 2 & val == 0.990 & ctype == "Nationwide"]
 
 # new columns for OR and 95% CI
 dat_cum <- dat_cum %>%
@@ -63,42 +63,48 @@ dat_cum <- dat_cum %>%
          or_low = exp(fit - 1.96 * se),
          or_high = exp(fit + 1.96 * se))
 
-# make climate type factor to set order
-dat_cum$ctype <- factor(dat_cum$ctype,
-                         levels = c("Nationwide", "Temperate", "Continental", "Arid", "Tropical"))
+# # make climate type factor to set order
+# dat_cum$ctype <- factor(dat_cum$ctype,
+#                          levels = c("Nationwide", "Temperate", "Continental", "Arid", "Tropical"))
 
 dat_cum$race <- factor(dat_cum$race,
                              levels = c("white", "black", "asian", "hispanic", "native", "other"),
                              labels = c("White", "Black", "Asian/PI", "Hispanic", "AI/AN", "Other"))
 
 # plot
-pdf(paste0(dir_figs, "race_cumulative.pdf"), height = 3.5, width = 8)
+pdf(paste0(dir_figs, "race_cumulative.pdf"), height = 3.5, width = 4.5)
 dat_cum |>
   ggplot(aes(x = race, y = or, 
-             color = race, group = race,
+             #color = race, group = race,
              ymin = or_low, ymax = or_high)) +
   geom_hline(yintercept = 1, linetype = 2, linewidth = 0.5, color = "gray50") +
-  geom_errorbar(linewidth = 0.7, width = 0) +
-  geom_point(size = 2) +
-  scale_color_brewer(palette = "Dark2") +
-  coord_cartesian(ylim = c(0, 2.5)) +
-  theme_light(base_size = 10) +
+  geom_errorbar(linewidth = 0.7, width = 0, color = "orangered") +
+  geom_point(size = 2, color = "orangered") +
+  #scale_color_brewer(palette = "Dark2") +
+  #coord_cartesian(ylim = c(0, 2.5)) +
+  theme_light(base_size = 12) +
   theme(
     #axis.text.x = element_text(angle = 45, hjust = 1),
-    axis.ticks.x = element_blank(),
-    axis.text.x = element_blank(),
+    #axis.ticks.x = element_blank(),
+    #axis.text.x = element_blank(),
     #axis.line = element_line(),
     #axis.ticks = element_line(),
     #panel.spacing = unit(1, "lines"),
     strip.background = element_blank(),
     strip.text = element_text(color = "black")
   ) +
-  facet_grid(~ ctype) +
+  #facet_grid(~ ctype) +
   labs(x = "", 
        y = "Odds ratio", 
        color = "", 
        fill = "")
 dev.off()
+
+# get in a table
+table_cum <- dat_cum |>
+  mutate(or = paste0(round(or, 3), " (", round(or_low, 3), ", ", round(or_high, 3), ")")) |>
+  select(race, or)
+
 
 
 ########################################################################
