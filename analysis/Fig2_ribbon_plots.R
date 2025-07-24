@@ -11,7 +11,7 @@ library(cowplot)
 dir_data <- "/n/dominici_nsaph_l3/Lab/projects/cdinehart_PDhosp_temperature/data/"
 data <- read_fst(paste0(dir_data, 'data_complete_climate.fst'), as.data.table = TRUE)
 
-# path to new figures
+# path to figures
 dir_figs <- "/n/dominici_nsaph_l3/Lab/projects/cdinehart_PDhosp_temperature/figures/"
 
 # load models from main analysis
@@ -27,16 +27,13 @@ ctype_cols <- c("Nationwide" = "orangered",
                 "Arid" = "#db3d89",
                 "Tropical" = "skyblue3")
 
-# # pdf dimensions
-# pdf_height <- 2.5
-# pdf_width <- 8
 
-#################################################################
-########################### FIGURE 2A ########################### 
-#################################################################
+
+################################################################################
+########################### FIGURE 2A (lag-response) ########################### 
+################################################################################
 
 ### lag response plots
-# based on old figure 1 (created in main_plots_NC_C.R)
 
 # by climate type
 dat_2a_ctype <- rbindlist(lapply(names(cp), function(c) {
@@ -99,11 +96,10 @@ dat_2a |>
 
 
 #################################################################
-########################### FIGURE 2B ########################### 
+#################### FIGURE 2B (cumulative) ##################### 
 #################################################################
 
 ### cumulative effect plots
-# based on old figure 1 (created in main_plots_NC_C.R)
 
 # by climate type
 dat_2b_ctype <- rbindlist(lapply(names(cp), function(c) {
@@ -164,7 +160,7 @@ dat_2b |>
 
 
 #################################################################
-########################### FIGURE 2C ########################### 
+############# FIGURE 2C (percentiles) ########################### 
 #################################################################
 
 # percentiles for comparison to 500
