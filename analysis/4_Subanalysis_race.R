@@ -16,24 +16,27 @@ data <- data[data$HI_lag_0 >= 0, ]
 # remove missing race
 data <- data[race != 0,]
 
-# make a new column with race name
-race_labels <- c("1" = "white", 
-                 "2" = "black", 
-                 "3" = "other",
-                 "4" = "asian",
-                 "5" = "hispanic",
-                 "6" = "native")
+# make a new column with race name (group Native American and other)
+race_labels <- c("1" = "White", 
+                 "2" = "Black", 
+                 "3" = "Other",
+                 "4" = "Asian",
+                 "5" = "Hispanic",
+                 "6" = "Other")
 data[, race_name := race_labels[as.character(race)]]
+
+# names to loop through
+race_names <- unique(race_labels)
 
 
 # Climate type models -----------------------
 
 # loop through each racial group
-for(i in 1:length(race_labels)){
+for(i in 1:length(race_names)){
   
   # restrict to a single racial group
-  cat("Race: ", race_labels[i])
-  data_onerace <- data[race_name == race_labels[i]]
+  cat("Race: ", race_names[i])
+  data_onerace <- data[race_name == race_names[i]]
   
   #initial models, no lag
   ##By climate region 
@@ -262,7 +265,7 @@ for(i in 1:length(race_labels)){
   cat("chosen lag df:", best_df_lag, "\n")
   summary(best_model)
   
-  save(cp, cp_all, file = paste0("data/aic_models_", race_labels[i], ".rda"))
+  save(cp, cp_all, file = paste0("data/aic_models_", race_names[i], ".rda"))
   
   gc()
 }
