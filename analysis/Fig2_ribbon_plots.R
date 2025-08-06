@@ -17,8 +17,8 @@ dir_figs <- "/n/dominici_nsaph_l3/Lab/projects/cdinehart_PDhosp_temperature/figu
 # load models from main analysis
 load(paste0(dir_data, 'aic_models_main.rda'))
 
-# select percentile of interest
-pctile <- 990
+# select percentile of interest (some tables show 950 and 990 --> need to run this script with both)
+pctile <- 950
 
 # plotting colors
 ctype_cols <- c("Nationwide" = "orangered", 
@@ -151,7 +151,7 @@ plot_2b <- dat_2b %>%
         plot.title = element_text(size = 10),
         plot.margin = margin(10, 10, 25, 10)) # extra space below
 
-# get these results in a table for Supplement Table 2
+# get these results in a table for Table 2
 # table has results for 95th percentile and 99th percentile (change percentile at the top)
 dat_2b |>
   filter(lag %in% 0:2) |>
